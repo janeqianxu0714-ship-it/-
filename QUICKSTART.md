@@ -2,16 +2,29 @@
 
 ## 一键启动（推荐）
 
-### 方法一：使用启动脚本
+### 方法一：完整安装启动（推荐）
 ```bash
-python run.py
-```
-脚本会自动：
-- 检查并安装依赖
-- 启动应用
-- 打开浏览器
+# macOS/Linux
+./setup_and_run.sh
 
-### 方法二：手动启动
+# Windows
+setup_and_run.bat
+```
+此方法会：
+- 创建独立的虚拟环境
+- 自动安装所有依赖
+- 启动应用并打开浏览器
+
+### 方法二：简单启动
+```bash
+# macOS/Linux
+./start.sh
+
+# Windows  
+start.bat
+```
+
+### 方法三：手动启动
 ```bash
 # 1. 安装依赖
 pip install -r requirements.txt

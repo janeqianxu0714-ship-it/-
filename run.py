@@ -11,6 +11,16 @@ import webbrowser
 import time
 import threading
 
+def get_python_cmd():
+    """获取可用的Python命令"""
+    for cmd in ['python3', 'python']:
+        try:
+            subprocess.check_output([cmd, '--version'], stderr=subprocess.STDOUT)
+            return cmd
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            continue
+    return None
+
 def check_dependencies():
     """检查依赖是否安装"""
     try:
@@ -21,12 +31,19 @@ def check_dependencies():
     except ImportError as e:
         print(f"❌ 缺少依赖: {e}")
         print("📦 正在安装依赖...")
+        
+        python_cmd = get_python_cmd()
+        if not python_cmd:
+            print("❌ 错误: 找不到Python命令")
+            return False
+            
         try:
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
+            subprocess.check_call([python_cmd, "-m", "pip", "install", "-r", "requirements.txt"])
             print("✅ 依赖安装完成!")
             return True
         except subprocess.CalledProcessError:
-            print("❌ 依赖安装失败，请手动运行: pip install -r requirements.txt")
+            print("❌ 依赖安装失败，请手动运行:")
+            print(f"   {python_cmd} -m pip install -r requirements.txt")
             return False
 
 def open_browser(url, delay=3):
@@ -64,8 +81,15 @@ def main():
     browser_thread.start()
     
     try:
+        # 获取Python命令
+        python_cmd = get_python_cmd()
+        if not python_cmd:
+            print("❌ 错误: 找不到Python命令")
+            input("按回车键退出...")
+            return
+            
         # 启动Streamlit应用
-        cmd = [sys.executable, "-m", "streamlit", "run", "streamlit_app.py", "--server.headless", "true"]
+        cmd = [python_cmd, "-m", "streamlit", "run", "streamlit_app.py", "--server.headless", "true"]
         print("✅ 应用启动成功!")
         print("💡 提示: 按 Ctrl+C 停止应用")
         print("-" * 50)
@@ -76,7 +100,7 @@ def main():
         print("\n👋 应用已停止")
     except FileNotFoundError:
         print("❌ 错误: 找不到 streamlit 命令")
-        print("请先安装 streamlit: pip install streamlit")
+        print(f"请先安装 streamlit: {get_python_cmd() or 'python'} -m pip install streamlit")
         input("按回车键退出...")
     except Exception as e:
         print(f"❌ 启动失败: {e}")
